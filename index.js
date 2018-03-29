@@ -7,16 +7,6 @@ const jsonfile = require("jsonfile")
 const CARDS_PATH = "/Users/andre/vbshare/cards"
 
 const actions = {
-  "seen": {
-    "url": null,
-    "modelType": null,
-    "fields": null
-  },
-  "swiped": {
-    "url": null,
-    "modelType": null,
-    "fields": null
-  },
   "tapped": {
     "url": "some link/url",
     "modelType": "SocialGame",
@@ -44,24 +34,93 @@ const makeName = (value) => {
   return name
 }
 
-const formatCards = () => {
+const getCards = () => {
+  const cards = []
   const files = fs.readdirSync(CARDS_PATH)
   for (const file of files) {
     if (file.indexOf(".json") === -1) {
       continue
     }
 
-    console.log(file)
     const filePath = path.join(CARDS_PATH, file)
-    const fileData = fs.readFileSync(filePath)
-    const card = JSON.parse(fileData)
-    card.name = makeName(card.name)
-    card.type = makeName(card.type)
-    card.actions = actions
-    delete card.uiFields.link
-
-    jsonfile.writeFileSync(filePath, card, { spaces: 2 })
+    cards.push({
+      card: jsonfile.readFileSync(filePath),
+      path: filePath
+    })
   }
+
+  return cards
+}
+
+const formatCards = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    card.card.name = makeName(card.card.name)
+    card.card.type = makeName(card.card.type)
+    card.card.actions = actions
+    delete card.card.uiFields.link
+
+    jsonfile.writeFileSync(filePath, card.card, { spaces: 2 })
+  }
+}
+
+const addMetaDataSource = () => {
+  const cards = getCards()
+  for (const condition of [ "start", "stop" ]) {
+    for (const card of cards) {
+      console.log("card:", card.card.name)
+      if (!!card.card.conditions[condition].query && !!card.card.conditions[condition].query.metaData) {
+        const metaData = card.card.conditions[condition].query.metaData
+        for (const key in metaData) {
+          metaData[key] = {
+            type: metaData[key].type,
+            source: "internal",
+            value: metaData[key].value
+          }
+        }
+
+        jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+      }
+    }
+  }
+}
+
+const replaceImages = (category, subcategory) => {
+  let imageUrl
+  if (category === 'longgame') {
+    switch (subcategory) {
+      case 'missions':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_longgame_jarsmissions%403x.png'
+        break
+      case 'account':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_longgame_account%403x.png'
+        break
+      case 'social':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_longgame_social%403x.png'
+        break
+      case 'rewards':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_longgame_rewards%403x.png'
+        break
+    }
+  } else if (category === 'RWFP') {
+    imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_rwfp_financial%403x.png'
+  } else if (category === 'minigames') {
+    switch (subcategory) {
+      case 'games':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_minigames_games%403x.png'
+        break
+      case 'coins':
+        imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_minigames_coins%403x.png'
+        break
+      case 'socialgames':
+        imageUrl = ''
+        break
+    }
+  } else {
+    // Default to longgame account
+    imageUrl = 'https://s3.amazonaws.com/static.longgame.co/img/appImages/CardImages/ctaicon_longgame_account%403x.png'
+  }
+  return imageUrl
 }
 
 const checkJson = () => {
@@ -82,7 +141,7 @@ const checkJson = () => {
 }
 
 const run = () => {
-   checkJson()
+   addMetaDataSource()
 }
 
 run()
