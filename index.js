@@ -34,24 +34,58 @@ const makeName = (value) => {
   return name
 }
 
-const formatCards = () => {
+const getCards = () => {
+  const cards = []
   const files = fs.readdirSync(CARDS_PATH)
   for (const file of files) {
     if (file.indexOf(".json") === -1) {
       continue
     }
 
-    console.log(file)
     const filePath = path.join(CARDS_PATH, file)
-    const fileData = fs.readFileSync(filePath)
-    const card = JSON.parse(fileData)
-    card.uiFields.imageUrl = replaceImages(card.category, card.subcategory)
+    cards.push({
+      card: jsonfile.readFileSync(filePath),
+      path: filePath
+    })
+  }
 
-    jsonfile.writeFileSync(filePath, card, { spaces: 2 })
+  return cards
+}
+
+const formatCards = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    card.card.name = makeName(card.card.name)
+    card.card.type = makeName(card.card.type)
+    card.card.actions = actions
+    delete card.card.uiFields.link
+
+    jsonfile.writeFileSync(filePath, card.card, { spaces: 2 })
   }
 }
 
-const replaceImages = (category, subcategory) {
+const addMetaDataSource = () => {
+  const cards = getCards()
+  for (const condition of [ "start", "stop" ]) {
+    for (const card of cards) {
+      console.log("card:", card.card.name)
+      if (!!card.card.conditions[condition].query && !!card.card.conditions[condition].query.metaData) {
+        const metaData = card.card.conditions[condition].query.metaData
+        for (const key in metaData) {
+          metaData[key] = {
+            type: metaData[key].type,
+            source: "internal",
+            value: metaData[key].value
+          }
+        }
+
+        jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+      }
+    }
+  }
+}
+
+const replaceImages = (category, subcategory) => {
   let imageUrl
   if (category === 'longgame') {
     switch (subcategory) {
@@ -107,7 +141,7 @@ const checkJson = () => {
 }
 
 const run = () => {
-   checkJson()
+   addMetaDataSource()
 }
 
 run()
