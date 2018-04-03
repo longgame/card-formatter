@@ -140,8 +140,21 @@ const checkJson = () => {
   }
 }
 
-const run = () => {
-   addMetaDataSource()
+const convertUIData = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    const uiData = card.card.uiData
+    let queries = []
+    for (const d in uiData) {
+      if (uiData[d].queries.length > 0) {
+        queries = queries.concat(uiData[d].queries)
+      }
+    }
+
+    delete card.card.uiData
+    card.card.uiQueries = queries
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
 }
 
-run()
+convertUIData()
