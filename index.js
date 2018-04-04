@@ -143,11 +143,15 @@ const checkJson = () => {
 const addServerActions = () => {
   const cards = getCards()
   for (const card of cards) {
-    if (!!card.card.conditions.stop.actions ) {
+    if (!!card.card.conditions.stop.actions) {
       delete card.card.conditions.stop.actions
     }
 
-    card.card.conditions.stopActions = [ "swiped" ]
+    if (!!card.card.conditions.stopActions) {
+      delete card.card.conditions.stopActions
+    }
+
+    card.card.conditions.stop.stopActions = [ "swiped" ]
     jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
   }
 }
