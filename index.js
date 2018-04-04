@@ -140,6 +140,18 @@ const checkJson = () => {
   }
 }
 
+const addServerActions = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    if (!!card.card.conditions.stop.actions ) {
+      delete card.card.conditions.stop.actions
+    }
+
+    card.card.conditions.stopActions = [ "swiped" ]
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
 const convertUIData = () => {
   const cards = getCards()
   for (const card of cards) {
@@ -157,4 +169,4 @@ const convertUIData = () => {
   }
 }
 
-convertUIData()
+addServerActions()
