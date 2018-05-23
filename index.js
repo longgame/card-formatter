@@ -173,4 +173,98 @@ const convertUIData = () => {
   }
 }
 
-addServerActions()
+const checkProcessed = () => {
+  const processedCards = new Set([
+    'AccountActivatedInFirstWeekUserHasMade1xDepositAndHasSetUpAutosave',
+    'AccountActivatedOnboardingComplete',
+    'NoGamePlayedOfAnyKind',
+    'NoAutosaveOutsideOfFw',
+    'UpcomingDrawingXNotEntered',
+    'UserHasGoneOver100Balance',
+    'UserHasGoneOver500Balance',
+    'UserHasMadeItUpToLevelX',
+    'UserHasNotYetReferredAnyoneInFirst30d',
+    'UserHasntSeenEffectiveInterestRateX',
+    'UserWithBalanceThatHasntChangedInXWeeksIsMakingYCoinsPerWeek',
+    'UserHasReferredSomeoneButHasntFor30Days',
+    'AccountActivatedInFirstWeek',
+    'AccountActivatedInFirstWeekUserHasMade1xDeposit',
+    'CompletedDrawingXNotEntered',
+    'UserHasntSeenGameStatsInfoX',
+    'SmsAccountOnboardingCompletedButEmailNotYetVerified',
+    'UserHasEnoughCoinsToPlayGameX',
+    'UserHasNotYetAllowedPushNotifications',
+    'UserHasntSeenLgWinStatsXWithWinnerName',
+    'UserHasGoneOver1000Balance',
+    'UserHasCompletedXMissionsThisMonth',
+    'UserHasFreeOmegaHasNotEnteredDrawingUpcoming',
+    'UserHasNotYetOpenedMysteryBoxX',
+    'UserHasNotYetUsedBoostX',
+    'FirstDepositMade',
+    'UserHasntSeenLgWinStatsX',
+    'UserHasAutosaveOnAndHasSavedXInYMonths',
+    'UserHasAutosaveOnAndHasSavedXInYMonths2',
+    'UserIsMakingProgressTowardAStreakMissionAndIsCloseToGettingRewardX',
+    'UserIsMakingProgressTowardASavingsMissionAndIsCloseToGettingRewardX',
+    'BirthdayMysteryBox',
+    'SavingsMissionXIncompleteProgress',
+    'UserHasMadeItUpToLevelX2',
+    'StreakMissionInProgressLimitedTimeRemaingAndNotYetNetPositiveForWeek',
+    'UserCompletedDepositWeekStreakAt1Week',
+    'LevelXIncompleteProgress',
+    'AutosaveSetupConfirmAutosaveSetUp',
+    'AutodepositButNo1xDepositOutsideOfFw',
+    'UserWonYCoinsInGameX',
+    'UserHasUnacceptedFriendRequests',
+    'UsersFriendRequestXWasAccepted',
+    'UsersFriendRequestXWasAcceptedAndUserGotABrainBonus',
+    'UserGotFriendRequestX'
+  ])
+
+  const blackList = {
+    "BirthdayMysteryBox.json": 0,
+    "UserHasntSeenGameStatsInfoX.json": 0,
+    "UserHasntSeenLgWinStatsX.json": 0,
+    "UserIsMakingProgressTowardASavingsMissionAndIsCloseToGettingRewardX.json": 0,
+    "UserIsMakingProgressTowardAStreakMissionAndIsCloseToGettingRewardX.json": 0
+  }
+
+  const cards = getCards()
+  const unprocessedCards = new Set()
+  for (const card of cards) {
+    if (!!blackList[card.card.type]) {
+      continue
+    }
+
+    if (processedCards.has(card.card.type)) {
+      continue
+    }
+
+    unprocessedCards.add(card.card.type)
+  }
+
+  console.log("unprocessed cards:", unprocessedCards)
+}
+
+const addCategory = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    if (!!card.card.uiFields.category) {
+      card.card.category = card.card.uiFields.category
+      delete card.card.uiFields.category
+      jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+    } else {
+      console.log("card:", card.card.type, "does not have a category in uiFields")
+    }
+  }
+}
+
+const addActiveFlag = () => {
+  const cards = getCards()
+  for (const card of cards) {
+    card.card.isActive = true
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
+addActiveFlag()
