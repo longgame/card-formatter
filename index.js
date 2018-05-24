@@ -267,4 +267,26 @@ const addActiveFlag = () => {
   }
 }
 
-addActiveFlag()
+const addActiveState = () => {
+  const inactiveCards = new Set([
+    "BirthdayMysteryBox",
+    "UserHasntSeenGameStatsInfoX",
+    "UserHasntSeenLgWinStatsX",
+    "UserIsMakingProgressTowardASavingsMissionAndIsCloseToGettingRewardX",
+    "UserIsMakingProgressTowardAStreakMissionAndIsCloseToGettingRewardX",
+    "LevelXIncompleteProgress2"
+  ])
+
+  const cards = getCards()
+  for (const card of cards) {
+    if (inactiveCards.has(card.card.type)) {
+      card.card.state = "inactive"
+    } else {
+      card.card.state = "active"
+    }
+
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
+addActiveState()
