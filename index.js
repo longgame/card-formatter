@@ -259,6 +259,37 @@ const addCategory = () => {
   }
 }
 
+const addAction = () => {
+  console.log("Add actions")
+  const cards = getCards()
+  for (const card of cards) {
+    console.log("Checking card:", card.card.name)
+    if (!card.card.actions) {
+      card.card.actions = {}
+      jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+      continue
+    }
+
+    for (const action in card.card.actions) {
+      console.log("checking action:", action)
+      const actionHash = card.card.actions[action]
+      console.log("action hash:", actionHash)
+      if (!actionHash.actionFields) {
+        actionHash.actionFields = {}
+      }
+
+      if (!actionHash.actionQueries) {
+        actionHash.actionQueries = []
+      }
+
+      card.card.actions[action] = actionHash
+    }
+
+    console.log("Got updated action hash:", card.card.actions)
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
 const addActiveFlag = () => {
   const cards = getCards()
   for (const card of cards) {
@@ -289,4 +320,4 @@ const addActiveState = () => {
   }
 }
 
-addActiveState()
+addAction()
