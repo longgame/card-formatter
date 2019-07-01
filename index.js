@@ -325,21 +325,19 @@ const addVersioning = () => {
   const cards = getCards()
   for (const card of cards) {
     console.log("Checking card:", card.card.name)
-    if (!card.card.version) {
-      card.card.version = {
-        ios: {
-          app: "3.5.1",
-          codePush: "3.5.1",
-        },
-        android: {
-          app: "3.5.1",
-          codePush: "3.5.1",
-        },
+    card.card.version = {
+      ios: {
+        app: "1.0.0",
+        codePush: "1.0.0",
+      },
+      android: {
+        app: "1.0.0",
+        codePush: "1.0.0",
       }
-
-      console.log("Adding version to card:", card.card.name)
-      jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
     }
+
+    console.log("Adding version to card:", card.card.name)
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
   }
 }
 
