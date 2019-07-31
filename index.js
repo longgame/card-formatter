@@ -357,4 +357,28 @@ const addSpecificUiFields = () => {
   }
 }
 
-addSpecificUiFields()
+const addSpecificUiFieldsForGames = () => {
+  const games = []
+  console.log("Add versioning")
+  const cards = getCards()
+  for (const card of cards) {
+    console.log("Checking card:", card.card.name)
+    if (card.card.category !== "game") {
+      continue
+    }
+
+    card.card.uiFields.extraUi = {
+      type: "game",
+      fields: {
+        displayTitle: "Some title",
+        cost: 0
+      }
+    }
+
+    console.log("Adding game ui to card:", card.card.name)
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
+
+addSpecificUiFieldsForGames()
