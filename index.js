@@ -341,4 +341,20 @@ const addVersioning = () => {
   }
 }
 
-addVersioning()
+
+const addSpecificUiFields = () => {
+  console.log("Add versioning")
+  const cards = getCards()
+  for (const card of cards) {
+    console.log("Checking card:", card.card.name)
+    card.card.uiFields.extraUi = {
+      type: null,
+      fields: {}
+    }
+
+    console.log("Adding version to card:", card.card.name)
+    jsonfile.writeFileSync(card.path, card.card, { spaces: 2 })
+  }
+}
+
+addSpecificUiFields()
